@@ -13,6 +13,7 @@
   --radius-lg: 28px;
   --shadow: 0 34px 100px rgba(18, 21, 31, 0.13);
   --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-display: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
 }
 
 * {
@@ -67,6 +68,10 @@ h1,
 h2,
 h3 {
   margin-top: 0;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 
 .ambient {
@@ -239,6 +244,8 @@ h3 {
 }
 
 h1 {
+  font-family: var(--font-display);
+  font-weight: 950;
   max-width: 760px;
   margin-bottom: 28px;
   font-size: clamp(68px, 10.7vw, 148px);
@@ -586,10 +593,12 @@ h1 span {
 }
 
 h2 {
+  font-family: var(--font-display);
+  font-weight: 950;
   margin-bottom: 0;
-  font-size: clamp(42px, 6.2vw, 84px);
-  line-height: 0.96;
-  letter-spacing: -0.09em;
+  font-size: clamp(42px, 5.6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.058em;
 }
 
 .about-grid,
@@ -633,9 +642,11 @@ h2 {
 }
 
 .quote-card strong {
+  font-family: var(--font-display);
+  font-weight: 950;
   font-size: 26px;
   line-height: 1.32;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
 }
 
 .section-header {
@@ -744,10 +755,13 @@ h2 {
 }
 
 .product-card h3 {
+  font-family: var(--font-display);
+  font-weight: 950;
   margin-bottom: 14px;
   font-size: clamp(32px, 4vw, 52px);
-  line-height: 0.98;
-  letter-spacing: -0.08em;
+  line-height: 1.02;
+  letter-spacing: -0.052em;
+  text-wrap: balance;
 }
 
 .product-card p {
@@ -769,13 +783,61 @@ h2 {
   color: var(--ink);
   background: var(--paper);
   border-color: rgba(11, 11, 16, 0.12);
+  cursor: pointer;
   font-size: 13px;
+  font-family: var(--font);
 }
 
 .product-rice-tok .fake-button {
   color: var(--paper);
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.fake-button:focus-visible {
+  outline: 3px solid rgba(37, 244, 238, 0.82);
+  outline-offset: 4px;
+}
+
+.fake-button:active {
+  transform: translate(1px, 1px);
+}
+
+.product-card.is-active {
+  box-shadow: 0 30px 90px rgba(11, 11, 16, 0.16);
+}
+
+.product-result {
+  max-width: 520px;
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 0 solid transparent;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.72);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height 220ms ease, margin 220ms ease, padding 220ms ease, border-width 220ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+.product-rice-tok .product-result {
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.product-card.is-active .product-result {
+  max-height: 160px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-width: 1px;
+  border-color: rgba(11, 11, 16, 0.08);
+  border-radius: 18px;
+  opacity: 1;
+  transform: none;
+}
+
+.product-rice-tok.is-active .product-result {
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .data-panel,
@@ -839,11 +901,13 @@ h2 {
 }
 
 .console-main strong {
+  font-family: var(--font-display);
+  font-weight: 950;
   display: block;
   margin-bottom: 36px;
   font-size: clamp(42px, 6vw, 76px);
-  line-height: 0.9;
-  letter-spacing: -0.08em;
+  line-height: 0.95;
+  letter-spacing: -0.052em;
 }
 
 .bar-chart {
@@ -867,9 +931,11 @@ h2 {
 }
 
 .console-stat strong {
+  font-family: var(--font-display);
+  font-weight: 950;
   font-size: 38px;
   line-height: 1;
-  letter-spacing: -0.08em;
+  letter-spacing: -0.052em;
 }
 
 .impact-list {
@@ -892,9 +958,12 @@ h2 {
 }
 
 .impact-list h3 {
+  font-family: var(--font-display);
+  font-weight: 950;
   margin: 34px 0 16px;
   font-size: 32px;
-  letter-spacing: -0.07em;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
 }
 
 .impact-list p {
@@ -1029,7 +1098,9 @@ h2 {
   }
 
   h1 {
-    font-size: 58px;
+    font-size: clamp(46px, 13vw, 54px);
+    line-height: 1.02;
+    letter-spacing: -0.055em;
   }
 
   h1 span {
@@ -1101,10 +1172,12 @@ h2 {
 }
 
 .culture-grid h3 {
+  font-family: var(--font-display);
+  font-weight: 950;
   margin-bottom: 16px;
   font-size: 30px;
   line-height: 1.05;
-  letter-spacing: -0.08em;
+  letter-spacing: -0.045em;
 }
 
 .culture-grid p {
@@ -1137,10 +1210,13 @@ h2 {
 }
 
 .timeline h3 {
+  font-family: var(--font-display);
+  font-weight: 950;
   margin-bottom: 0;
   font-size: 28px;
   line-height: 1.15;
-  letter-spacing: -0.07em;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
 }
 
 .timeline p {
@@ -1212,15 +1288,15 @@ h2 {
 
 .js .reveal {
   opacity: 0;
-  transform: translateY(26px);
+  translate: 0 26px;
 }
 
 .js .reveal.is-in {
   opacity: 1;
-  transform: none;
+  translate: none;
   transition:
     opacity 0.7s cubic-bezier(0.22, 0.7, 0.2, 1),
-    transform 0.7s cubic-bezier(0.22, 0.7, 0.2, 1);
+    translate 0.7s cubic-bezier(0.22, 0.7, 0.2, 1);
   transition-delay: var(--rd, 0ms);
 }
 
@@ -1239,7 +1315,7 @@ h2 {
    when the tab was backgrounded and the reveal transition never ran) */
 .js.force .reveal {
   opacity: 1 !important;
-  transform: none !important;
+  translate: none !important;
   transition: none !important;
 }
 

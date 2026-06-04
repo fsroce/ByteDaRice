@@ -8,7 +8,7 @@
       name="description"
       content="ByteDaRice 官网：全球领先的米饭科技公司，用 RiceTok、BowlDance、RiceEngine 与 ByteRice Cloud 激发饱腹感，丰富每一餐。"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260604" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -110,7 +110,7 @@
       <section id="about" class="section about-section">
         <div class="section-label">About ByteDaRice</div>
         <div class="about-grid">
-          <h2>我们不生产米饭，<br />我们重新定义“开饭”。</h2>
+          <h2>我们不生产米饭，<br />我们重新定义<span class="nowrap">“开饭”。</span></h2>
           <div class="about-copy">
             <p>
               在 ByteDaRice，米饭不是配角，而是一套严肃的生活操作系统。我们将内容分发、AI 推荐、
@@ -166,35 +166,40 @@
         </div>
 
         <div class="product-grid">
-          <article class="product-card product-rice-tok">
+          <article class="product-card product-rice-tok" data-product-result="已刷新 8 条开饭热榜，优先推荐粒粒分明、热气在线的饭活内容。">
             <div class="product-tag">Content</div>
             <h3>RiceTok</h3>
             <p>记录美好饭活。上下滑动发现开盖热气、拌饭 ASMR 与深夜碳水疗愈瞬间。</p>
-            <span class="fake-button">For You 饭页</span>
+            <button class="fake-button" type="button" aria-expanded="false" data-active-label="收起饭页">For You 饭页</button>
+            <p class="product-result" aria-live="polite"></p>
           </article>
-          <article class="product-card product-bowl">
+          <article class="product-card product-bowl" data-product-result="碗端动效已就绪：根据敲碗节奏生成 3 段餐桌舞步。">
             <div class="product-tag">Experience</div>
             <h3>BowlDance</h3>
             <p>让饭碗动起来。用节奏算法识别筷子敲碗频率，生成专属餐桌舞步。</p>
-            <span class="fake-button">打开碗端动效</span>
+            <button class="fake-button" type="button" aria-expanded="false" data-active-label="收起动效">打开碗端动效</button>
+            <p class="product-result" aria-live="polite"></p>
           </article>
-          <article class="product-card product-engine">
+          <article class="product-card product-engine" data-product-result="预测完成：今日建议饭量 1.7 碗，适合搭配浓口菜品与热汤。">
             <div class="product-tag">AI</div>
             <h3>RiceEngine</h3>
             <p>下一代米饭推荐引擎。基于饥饿程度、菜品浓度、灵魂缺口，推荐最优米饭方案。</p>
-            <span class="fake-button">今日饭量预测</span>
+            <button class="fake-button" type="button" aria-expanded="false" data-active-label="收起预测">今日饭量预测</button>
+            <p class="product-result" aria-live="polite"></p>
           </article>
-          <article class="product-card product-cloud">
+          <article class="product-card product-cloud" data-product-result="蒸汽可用区在线：上海、东京、新加坡三地饭点延迟低于 22ms。">
             <div class="product-tag">Cloud</div>
             <h3>ByteRice Cloud</h3>
             <p>全球领先的蒸饭云基础设施。以弹性蒸汽算力承载全球饭点高并发。</p>
-            <span class="fake-button">查看蒸汽可用区</span>
+            <button class="fake-button" type="button" aria-expanded="false" data-active-label="收起可用区">查看蒸汽可用区</button>
+            <p class="product-result" aria-live="polite"></p>
           </article>
-          <article class="product-card product-cutlet">
+          <article class="product-card product-cutlet" data-product-result="饭感大片已生成：自动保留酥脆切面、酱汁重力与米饭高光。">
             <div class="product-tag">Creative</div>
             <h3>CapCutlet</h3>
             <p>专为炸猪排饭打造的视频编辑工具。自动识别酥脆切面、酱汁重力与米饭反光。</p>
-            <span class="fake-button">一键生成饭感大片</span>
+            <button class="fake-button" type="button" aria-expanded="false" data-active-label="收起大片">一键生成饭感大片</button>
+            <p class="product-result" aria-live="polite"></p>
           </article>
         </div>
       </section>
@@ -403,6 +408,20 @@
           var r = card.getBoundingClientRect();
           card.style.setProperty("--mx", ((ev.clientX - r.left) / r.width * 100) + "%");
           card.style.setProperty("--my", ((ev.clientY - r.top) / r.height * 100) + "%");
+        });
+      });
+
+      /* ---------- product actions ---------- */
+      [].forEach.call(document.querySelectorAll(".product-card .fake-button"), function (button) {
+        var label = button.textContent;
+        button.addEventListener("click", function () {
+          var card = button.closest(".product-card");
+          var result = card && card.querySelector(".product-result");
+          var isActive = card && card.classList.toggle("is-active");
+          if (!card || !result) return;
+          button.setAttribute("aria-expanded", isActive ? "true" : "false");
+          button.textContent = isActive ? (button.getAttribute("data-active-label") || "收起") : label;
+          result.textContent = isActive ? (card.getAttribute("data-product-result") || "已启动。") : "";
         });
       });
 
