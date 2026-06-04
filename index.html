@@ -9,8 +9,10 @@
       content="ByteDaRice 官网：全球领先的米饭科技公司，用 RiceTok、BowlDance、RiceEngine 与 ByteRice Cloud 激发饱腹感，丰富每一餐。"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
+    <div class="scroll-progress" aria-hidden="true"></div>
     <div class="ambient ambient-red" aria-hidden="true"></div>
     <div class="ambient ambient-cyan" aria-hidden="true"></div>
 
@@ -76,12 +78,12 @@
 
           <div class="metric-card metric-a glass-card">
             <span>DAU</span>
-            <strong>8.88 亿碗</strong>
+            <strong data-count="8.88" data-dec="2" data-suffix=" 亿碗">8.88 亿碗</strong>
             <small>Daily Active Umai</small>
           </div>
           <div class="metric-card metric-b glass-card">
             <span>RiceEngine</span>
-            <strong>99.8%</strong>
+            <strong data-count="99.8" data-dec="1" data-suffix="%">99.8%</strong>
             <small>米饭推荐命中率</small>
           </div>
           <div class="orbit-chip chip-red">RiceTok</div>
@@ -205,7 +207,7 @@
             <div class="console-main">
               <span class="console-dot"></span>
               <p>Peak Lunch Traffic</p>
-              <strong>12:08:23</strong>
+              <strong id="rice-clock">12:08:23</strong>
               <div class="bar-chart" aria-hidden="true">
                 <span style="height: 48%"></span>
                 <span style="height: 74%"></span>
@@ -216,10 +218,10 @@
                 <span style="height: 52%"></span>
               </div>
             </div>
-            <div class="console-stat"><span>蒸汽延迟</span><strong>18ms</strong></div>
-            <div class="console-stat"><span>锅巴留存</span><strong>+24%</strong></div>
-            <div class="console-stat"><span>饭感 NPS</span><strong>98.6</strong></div>
-            <div class="console-stat"><span>空碗率</span><strong>99.9%</strong></div>
+            <div class="console-stat"><span>蒸汽延迟</span><strong data-count="18" data-suffix="ms">18ms</strong></div>
+            <div class="console-stat"><span>锅巴留存</span><strong data-count="24" data-prefix="+" data-suffix="%">+24%</strong></div>
+            <div class="console-stat"><span>饭感 NPS</span><strong data-count="98.6" data-dec="1">98.6</strong></div>
+            <div class="console-stat"><span>空碗率</span><strong data-count="99.9" data-dec="1" data-suffix="%">99.9%</strong></div>
           </div>
         </div>
       </section>
@@ -291,7 +293,7 @@
             我们正在寻找米饭产品经理、蒸汽架构师、碗端增长专家、锅巴治理研究员与炸猪排饭内容策略师。
             如果你相信“吃饱”也是一次伟大的用户体验创新，欢迎入职开饭。
           </p>
-          <a class="button primary" href="mailto:careers@bytedarice.example">投递饭碗简历</a>
+          <a class="button primary" href="/cdn-cgi/l/email-protection#ed8e8c9f88889f9ead8f949988898c9f848e88c388958c809d8188">投递饭碗简历</a>
         </div>
       </section>
     </main>
@@ -299,8 +301,8 @@
     <footer class="footer">
       <div class="footer-contact">
         <p>© 2026 ByteDaRice. Inspire Fullness, Enrich Life.</p>
-        <span>Media: press@bytedarice.example</span>
-        <span>Careers: hr@bytedarice.example</span>
+        <span>Media: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13636176606053716a67767772617a70763d766b727e637f76">[email&#160;protected]</a></span>
+        <span>Careers: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="40283200223934252421322923256e2538212d302c25">[email&#160;protected]</a></span>
       </div>
       <div class="footer-links">
         <a href="#about">About Us</a>
@@ -309,5 +311,147 @@
         <a href="#careers">Join Us</a>
       </div>
     </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    (function () {
+      "use strict";
+      var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var hasIO = "IntersectionObserver" in window;
+
+      /* ---------- scroll progress + scroll-spy ---------- */
+      var bar = document.querySelector(".scroll-progress");
+      var navLinks = [].slice.call(document.querySelectorAll(".nav-links a"));
+      var sections = navLinks.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+      function onScroll() {
+        var el = document.documentElement;
+        var max = el.scrollHeight - el.clientHeight;
+        var y = window.scrollY || el.scrollTop || 0;
+        if (bar) bar.style.transform = "scaleX(" + (max > 0 ? (y / max).toFixed(4) : 0) + ")";
+        var probe = y + 130, idx = -1;
+        sections.forEach(function (s, i) { if (s && s.offsetTop <= probe) idx = i; });
+        navLinks.forEach(function (a, i) { a.classList.toggle("active", i === idx); });
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll);
+
+      /* ---------- staggered scroll reveals ---------- */
+      var groups = [
+        [".hero-copy > *", 90], [".hero-stage > *", 110],
+        [".about-section .section-label, .about-grid > *", 90],
+        [".culture-section .section-header > *", 80], [".culture-grid article", 90],
+        [".products-section .section-header > *", 80], [".product-card", 90],
+        [".data-panel", 0],
+        [".milestones-section .section-header > *", 80], [".timeline article", 80],
+        [".impact-section .section-header > *", 80], [".impact-list article", 100],
+        [".careers-card", 0]
+      ];
+      var revealIO = hasIO ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add("is-in"); revealIO.unobserve(e.target); }
+        });
+      }, { threshold: 0.16, rootMargin: "0px 0px -7% 0px" }) : null;
+      groups.forEach(function (g) {
+        [].forEach.call(document.querySelectorAll(g[0]), function (el, i) {
+          el.classList.add("reveal");
+          el.style.setProperty("--rd", (i * g[1]) + "ms");
+          if (revealIO) revealIO.observe(el); else el.classList.add("is-in");
+        });
+      });
+
+      /* ---------- bar chart grow ---------- */
+      [].forEach.call(document.querySelectorAll(".bar-chart"), function (bc) {
+        [].forEach.call(bc.children, function (sp, i) { sp.style.setProperty("--bd", (i * 70) + "ms"); });
+        if (revealIO) revealIO.observe(bc); else bc.classList.add("is-in");
+      });
+
+      /* ---------- count-up numbers ---------- */
+      function countUp(el) {
+        var target = parseFloat(el.getAttribute("data-count"));
+        var dec = parseInt(el.getAttribute("data-dec") || "0", 10);
+        var pre = el.getAttribute("data-prefix") || "";
+        var suf = el.getAttribute("data-suffix") || "";
+        if (reduce || isNaN(target)) { el.textContent = pre + target.toFixed(dec) + suf; return; }
+        var dur = 1500, t0 = performance.now();
+        (function frame(now) {
+          var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+          el.textContent = pre + (target * e).toFixed(dec) + suf;
+          if (p < 1) requestAnimationFrame(frame); else el.textContent = pre + target.toFixed(dec) + suf;
+        })(t0);
+      }
+      var countIO = hasIO ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { countUp(e.target); countIO.unobserve(e.target); } });
+      }, { threshold: 0.4 }) : null;
+      [].forEach.call(document.querySelectorAll("[data-count]"), function (el) {
+        if (countIO) countIO.observe(el); else countUp(el);
+      });
+
+      /* ---------- live console clock ---------- */
+      var clk = document.getElementById("rice-clock");
+      if (clk) {
+        var pad = function (n) { return String(n).padStart(2, "0"); };
+        var tick = function () { var d = new Date(); clk.textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()); };
+        tick(); setInterval(tick, 1000);
+      }
+
+      /* ---------- product card pointer sheen ---------- */
+      [].forEach.call(document.querySelectorAll(".product-card"), function (card) {
+        var sheen = document.createElement("span");
+        sheen.className = "sheen";
+        card.insertBefore(sheen, card.firstChild);
+        if (reduce) return;
+        card.addEventListener("pointermove", function (ev) {
+          var r = card.getBoundingClientRect();
+          card.style.setProperty("--mx", ((ev.clientX - r.left) / r.width * 100) + "%");
+          card.style.setProperty("--my", ((ev.clientY - r.top) / r.height * 100) + "%");
+        });
+      });
+
+      /* ---------- subtle hero parallax ---------- */
+      if (!reduce && matchMedia("(pointer:fine)").matches) {
+        var hero = document.querySelector(".hero");
+        var items = [
+          [document.querySelector(".phone-card"), 8],
+          [document.querySelector(".metric-a"), 18],
+          [document.querySelector(".metric-b"), 18],
+          [document.querySelector(".chip-red"), 26],
+          [document.querySelector(".chip-cyan"), 26],
+          [document.querySelector(".chip-black"), 26]
+        ];
+        if (hero) {
+          hero.addEventListener("pointermove", function (ev) {
+            var dx = ev.clientX / window.innerWidth - 0.5, dy = ev.clientY / window.innerHeight - 0.5;
+            items.forEach(function (it) {
+              if (!it[0]) return;
+              it[0].style.setProperty("--px", (dx * it[1]).toFixed(1) + "px");
+              it[0].style.setProperty("--py", (dy * it[1]).toFixed(1) + "px");
+            });
+          });
+          hero.addEventListener("pointerleave", function () {
+            items.forEach(function (it) { if (it[0]) { it[0].style.setProperty("--px", "0px"); it[0].style.setProperty("--py", "0px"); } });
+          });
+        }
+      }
+
+      /* ---------- periodic logo glitch ---------- */
+      if (!reduce) {
+        var hspan = document.querySelector("h1 span");
+        if (hspan) setInterval(function () {
+          hspan.classList.add("glitching");
+          setTimeout(function () { hspan.classList.remove("glitching"); }, 420);
+        }, 5400);
+      }
+
+      /* ---------- safety: never leave content hidden ---------- */
+      // Transitions/animations don't advance in a backgrounded tab, so the
+      // is-in transition can freeze at opacity:0. After a grace period, force
+      // the final state instantly (transition:none) as a guaranteed fallback.
+      setTimeout(function () {
+        document.documentElement.classList.add("force");
+        [].forEach.call(document.querySelectorAll(".reveal:not(.is-in), .bar-chart:not(.is-in)"), function (el) { el.classList.add("is-in"); });
+      }, 1500);
+
+      onScroll();
+    })();
+    </script>
   </body>
 </html>
