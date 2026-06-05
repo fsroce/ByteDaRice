@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ByteDaRice｜公司财务状况</title>
+    <meta
+      name="description"
+      content="ByteDaRice 公司财务状况观察页，展示公开只读的资产概览、明细、权重和行情状态。"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260604" />
+    <script>document.documentElement.classList.add("js");</script>
+  </head>
+  <body class="portfolio-page">
+    <div class="ambient ambient-red" aria-hidden="true"></div>
+    <div class="ambient ambient-cyan" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <nav class="nav" aria-label="主导航">
+        <a class="brand" href="index.html#top" aria-label="ByteDaRice 首页">
+          <span class="brand-icon">
+            <span></span>
+            <span></span>
+          </span>
+          <span>ByteDaRice</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html#about">关于我们</a>
+          <a href="index.html#products">产品服务</a>
+          <a href="index.html#milestones">发展历程</a>
+          <a class="active" href="a-shares.html">财务状况</a>
+        </div>
+        <a class="nav-cta" href="index.html#top">返回主页</a>
+      </nav>
+    </header>
+
+    <main class="portfolio-shell" data-portfolio-app data-api-url="https://hold.fsrice.com/api/display/portfolio" data-refresh-api-url="https://hold.fsrice.com/api/display/portfolio/refresh" data-refresh-interval-ms="180000" data-refresh-cooldown-ms="60000">
+      <section class="portfolio-hero" aria-labelledby="portfolio-title">
+        <div>
+          <p class="eyebrow portfolio-kicker"><span></span> FINANCIAL SNAPSHOT</p>
+          <h1 id="portfolio-title" class="portfolio-title">公司财务状况</h1>
+          <p class="portfolio-lead">
+            面向公开访问的财务观察页，展示资产市值、阶段变化、配置权重和行情状态。
+          </p>
+          <div class="portfolio-badges" aria-label="财务页状态">
+            <span>公开只读</span>
+            <span id="data-state">正在请求接口</span>
+          </div>
+        </div>
+
+        <aside class="portfolio-source-card" aria-label="数据源状态">
+          <div class="quote-source-main">
+            <span>Quote Source</span>
+            <strong id="quote-source">等待行情</strong>
+          </div>
+          <div class="quote-update-panel">
+            <div>
+              <span>上次价格更新</span>
+              <strong id="updated-at">等待数据更新</strong>
+            </div>
+            <button id="refresh-price-button" class="quote-refresh-button" type="button">
+              <span id="refresh-button-label">刷新价格</span>
+              <i aria-hidden="true"></i>
+            </button>
+          </div>
+          <p id="refresh-status" class="quote-refresh-status" aria-live="polite">自动更新准备中</p>
+        </aside>
+      </section>
+
+      <section class="portfolio-summary" aria-label="组合总览">
+        <article>
+          <span>总市值</span>
+          <strong id="summary-market-value">--</strong>
+          <small>Market Value</small>
+        </article>
+        <article>
+          <span>累计盈亏</span>
+          <strong id="summary-pnl">--</strong>
+          <small id="summary-pnl-rate">--</small>
+        </article>
+        <article>
+          <span>今日变化</span>
+          <strong id="summary-day-pnl">--</strong>
+          <small>Daily P/L</small>
+        </article>
+        <article>
+          <span>资产数量</span>
+          <strong id="summary-position-count">--</strong>
+          <small id="summary-total-cost">成本 --</small>
+        </article>
+      </section>
+
+      <section class="portfolio-toolbar" aria-label="资产筛选">
+        <div class="segmented-control" role="group" aria-label="资产分类">
+          <button class="is-selected" type="button" data-filter="all">全部</button>
+          <button type="button" data-filter="profit">盈利</button>
+          <button type="button" data-filter="loss">亏损</button>
+          <button type="button" data-filter="heavy">重点</button>
+        </div>
+        <div class="sort-menu" data-sort-menu>
+          <span>排序</span>
+          <button id="portfolio-sort-button" class="sort-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="portfolio-sort-menu">
+            <span id="portfolio-sort-current">仓位从高到低</span>
+            <i aria-hidden="true"></i>
+          </button>
+          <div id="portfolio-sort-menu" class="sort-options" role="listbox" aria-label="排序方式" hidden>
+            <button class="is-selected" type="button" role="option" aria-selected="true" data-sort="weight">仓位从高到低</button>
+            <button type="button" role="option" aria-selected="false" data-sort="pnl">盈亏从高到低</button>
+            <button type="button" role="option" aria-selected="false" data-sort="marketValue">市值从高到低</button>
+            <button type="button" role="option" aria-selected="false" data-sort="code">代码顺序</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="portfolio-grid">
+        <section class="holdings-panel" aria-labelledby="holdings-title">
+          <div class="panel-heading">
+            <div>
+              <p>Assets</p>
+              <h2 id="holdings-title">资产明细</h2>
+            </div>
+            <span id="position-count">-- 项资产</span>
+          </div>
+          <div class="holdings-table-wrap">
+            <table class="holdings-table">
+              <thead>
+                <tr>
+                  <th>资产</th>
+                  <th>状态 / 权重</th>
+                  <th>数量</th>
+                  <th>成本 / 现价</th>
+                  <th>市值</th>
+                  <th>盈亏</th>
+                </tr>
+              </thead>
+              <tbody id="holdings-body">
+                <tr>
+                  <td colspan="6">正在请求资产数据...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="portfolio-side">
+          <section class="allocation-panel" aria-labelledby="allocation-title">
+            <div class="panel-heading compact">
+              <div>
+                <p>Weight</p>
+                <h2 id="allocation-title">资产权重</h2>
+              </div>
+            </div>
+            <div id="allocation-list" class="allocation-list"></div>
+          </section>
+
+          <section class="risk-panel" aria-labelledby="risk-title">
+            <div class="panel-heading compact">
+              <div>
+                <p>Watch</p>
+                <h2 id="risk-title">组合观察</h2>
+              </div>
+            </div>
+            <div id="risk-list" class="risk-list"></div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="portfolio-note" aria-label="风险提示">
+        <strong>公开展示，仅供了解。</strong>
+        <span>真实接口接入前展示演示数据；价格、盈亏和权重以接口返回为准。</span>
+      </section>
+    </main>
+
+    <script>
+    (function () {
+      "use strict";
+
+      var app = document.querySelector("[data-portfolio-app]");
+      var defaultApiUrl = "https://hold.fsrice.com/api/display/portfolio";
+      var apiUrl = (window.PORTFOLIO_DISPLAY_API || window.A_SHARE_HOLDINGS_API || app.getAttribute("data-api-url") || defaultApiUrl).trim();
+      var refreshApiUrl = (window.PORTFOLIO_REFRESH_API || window.A_SHARE_HOLDINGS_REFRESH_API || app.getAttribute("data-refresh-api-url") || apiUrl.replace(/\/$/, "") + "/refresh").trim();
+      var refreshIntervalMs = Math.max(15000, Number(app.getAttribute("data-refresh-interval-ms")) || 60000);
+      var refreshCooldownMs = Math.max(15000, Number(app.getAttribute("data-refresh-cooldown-ms")) || 60000);
+      var refreshCooldownStorageKey = "byterice:portfolio-refresh-unlock:" + refreshApiUrl;
+      var refreshTimer = null;
+      var countdownTimer = null;
+      var nextRefreshAt = 0;
+      var manualRefreshUnlockedAt = 0;
+      var isLoading = false;
+      var state = {
+        filter: "all",
+        sort: "weight",
+        meta: {},
+        positions: []
+      };
+
+      var fallbackPortfolio = {
+        meta: {
+          source: "sina",
+          fetchedAt: "2026-06-05T07:00:02.000Z",
+          quoteDate: "2026-06-05",
+          quoteTime: "15:00:02",
+          currency: "CNY",
+          isComplete: true,
+          missingCodes: []
+        },
+        summary: {
+          totalCost: 595302,
+          totalMarketValue: 610530,
+          todayProfit: -1252,
+          totalProfit: 15228,
+          totalReturn: 0.02558,
+          positionCount: 6
+        },
+        positions: [
+          {
+            code: "600519.SH",
+            name: "贵州茅台",
+            shares: 100,
+            cost: 1468,
+            costValue: 146800,
+            price: 1526.8,
+            preClose: 1539.6,
+            marketValue: 152680,
+            todayProfit: -1280,
+            totalProfit: 5880,
+            returnRate: 0.04005,
+            quoteDate: "2026-06-05",
+            quoteTime: "15:00:02",
+            quoteStatus: "ok"
+          },
+          {
+            code: "300750.SZ",
+            name: "宁德时代",
+            shares: 600,
+            cost: 186.2,
+            costValue: 111720,
+            price: 197.34,
+            preClose: 198.3,
+            marketValue: 118404,
+            todayProfit: -576,
+            totalProfit: 6684,
+            returnRate: 0.05983,
+            quoteDate: "2026-06-05",
+            quoteTime: "15:00:02",
+            quoteStatus: "ok"
+          },
+          {
+            code: "600036.SH",
+            name: "招商银行",
+            shares: 2600,
+            cost: 32.48,
+            costValue: 84448,
+            price: 34.12,
+            preClose: 33.86,
+            marketValue: 88712,
+            todayProfit: 676,
+            totalProfit: 4264,
+            returnRate: 0.05049,
+            quoteDate: "2026-06-05",
+            quoteTime: "15:00:02",
+            quoteStatus: "ok"
+          },
+          {
+            code: "002594.SZ",
+            name: "比亚迪",
+            shares: 420,
+            cost: 256.4,
+            costValue: 107688,
+            price: 241.9,
+            preClose: 244.2,
+            marketValue: 101598,
+            todayProfit: -966,
+            totalProfit: -6090,
+            returnRate: -0.05655,
+            quoteDate: "2026-06-05",
+            quoteTime: "15:00:02",
+            quoteStatus: "ok"
+          },
+          {
+            code: "601138.SH",
+            name: "工业富联",
+            shares: 3600,
+            cost: 19.86,
+            costValue: 71496,
+            price: 22.16,
+            preClose: 21.72,
+            marketValue: 79776,
+            todayProfit: 1584,
+            totalProfit: 8280,
+            returnRate: 0.11581,
+            quoteDate: "2026-06-05",
+            quoteTime: "15:00:02",
+            quoteStatus: "ok"
+          },
+          {
+            code: "300308.SZ",
+            name: "中际旭创",
+            shares: 500,
+            cost: 146.3,
+            costValue: 73150,
+            price: 138.72,
+            preClose: 140.1,
+            marketValue: 69360,
+            todayProfit: -690,
+            totalProfit: -3790,
+            returnRate: -0.05181,
+            quoteDate: "2026-06-05",
+            quoteTime: "15:00:02",
+            quoteStatus: "ok"
+          }
+        ]
+      };
+
+      var els = {
+        quoteSource: document.getElementById("quote-source"),
+        updatedAt: document.getElementById("updated-at"),
+        dataState: document.getElementById("data-state"),
+        totalValue: document.getElementById("summary-market-value"),
+        pnl: document.getElementById("summary-pnl"),
+        pnlRate: document.getElementById("summary-pnl-rate"),
+        dayPnl: document.getElementById("summary-day-pnl"),
+        positionCount: document.getElementById("summary-position-count"),
+        totalCost: document.getElementById("summary-total-cost"),
+        count: document.getElementById("position-count"),
+        body: document.getElementById("holdings-body"),
+        allocation: document.getElementById("allocation-list"),
+        risk: document.getElementById("risk-list"),
+        sortMenu: document.querySelector("[data-sort-menu]"),
+        sortButton: document.getElementById("portfolio-sort-button"),
+        sortCurrent: document.getElementById("portfolio-sort-current"),
+        sortOptions: document.getElementById("portfolio-sort-menu"),
+        refreshButton: document.getElementById("refresh-price-button"),
+        refreshButtonLabel: document.getElementById("refresh-button-label"),
+        refreshStatus: document.getElementById("refresh-status")
+      };
+
+      function isBlank(value) {
+        return value === null || value === undefined || value === "";
+      }
+
+      function hasField(object, key) {
+        return Object.prototype.hasOwnProperty.call(object, key);
+      }
+
+      function readField(object, keys) {
+        for (var i = 0; i < keys.length; i += 1) {
+          if (hasField(object, keys[i])) return object[keys[i]];
+        }
+        return undefined;
+      }
+
+      function toNumber(value, fallback) {
+        if (isBlank(value)) return fallback;
+        var num = Number(value);
+        return Number.isFinite(num) ? num : fallback;
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function asPercent(value) {
+        var num = toNumber(value, null);
+        if (num === null) return null;
+        return Math.abs(num) > 0 && Math.abs(num) <= 1 ? num * 100 : num;
+      }
+
+      function formatMoney(value, digits) {
+        var num = toNumber(value, null);
+        if (num === null) return "--";
+        return new Intl.NumberFormat("zh-CN", {
+          style: "currency",
+          currency: "CNY",
+          maximumFractionDigits: digits == null ? 2 : digits,
+          minimumFractionDigits: digits == null ? 2 : digits
+        }).format(num);
+      }
+
+      function formatNumber(value) {
+        var num = toNumber(value, null);
+        return num === null ? "--" : new Intl.NumberFormat("zh-CN").format(num);
+      }
+
+      function formatClock(date) {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "--";
+        var pad = function (num) { return String(num).padStart(2, "0"); };
+        return pad(date.getHours()) + ":" + pad(date.getMinutes()) + ":" + pad(date.getSeconds());
+      }
+
+      function formatRefreshWait(ms) {
+        var seconds = Math.max(0, Math.ceil(ms / 1000));
+        if (seconds >= 60) return Math.ceil(seconds / 60) + " 分钟后自动更新";
+        return seconds + " 秒后自动更新";
+      }
+
+      function formatManualRefreshWait(ms) {
+        var seconds = Math.max(0, Math.ceil(ms / 1000));
+        if (seconds >= 60) return Math.ceil(seconds / 60) + " 分钟后可刷新";
+        return seconds + " 秒后可刷新";
+      }
+
+      function formatPercent(value) {
+        var num = asPercent(value);
+        return num === null ? "--" : num.toFixed(2) + "%";
+      }
+
+      function toneClass(value) {
+        var num = toNumber(value, null);
+        if (num === null || num === 0) return "is-neutral";
+        return num > 0 ? "is-gain" : "is-loss";
+      }
+
+      function formatQuoteStatus(status) {
+        if (status === "missing") return "行情缺失";
+        if (status === "stale") return "行情过期";
+        return "行情正常";
+      }
+
+      function quoteStatusClass(status) {
+        if (status === "missing") return "quote-missing";
+        if (status === "stale") return "quote-stale";
+        return "quote-ok";
+      }
+
+      function weightBase(item) {
+        if (item.marketValue !== null) return item.marketValue;
+        return item.costValue;
+      }
+
+      function normalizePosition(item) {
+        var shares = toNumber(readField(item, ["shares", "quantity", "amount"]), 0);
+        var costPrice = toNumber(readField(item, ["cost", "costPrice", "avgCost"]), null);
+        var lastPrice = toNumber(readField(item, ["price", "lastPrice", "currentPrice"]), null);
+        var preClose = toNumber(readField(item, ["preClose"]), null);
+        var costValue = toNumber(readField(item, ["costValue"]), null);
+        var marketValue = toNumber(readField(item, ["marketValue", "value"]), null);
+        var pnl = toNumber(readField(item, ["totalProfit", "pnl", "profit"]), null);
+        var dayPnl = toNumber(readField(item, ["todayProfit", "dayPnl", "dailyPnl"]), null);
+        var pnlRateSource = readField(item, ["returnRate", "pnlRate", "profitRate"]);
+        var pnlRate = asPercent(pnlRateSource);
+        var weightSource = readField(item, ["weight", "positionWeight"]);
+
+        return {
+          code: String(item.code || item.symbol || "--"),
+          name: String(item.name || item.stockName || "未命名"),
+          market: String(item.market || item.exchange || String(item.code || "").split(".")[1] || ""),
+          shares: shares,
+          costPrice: costPrice,
+          lastPrice: lastPrice,
+          preClose: preClose,
+          costValue: costValue,
+          marketValue: marketValue,
+          pnl: pnl,
+          dayPnl: dayPnl,
+          pnlRate: pnlRate,
+          weight: asPercent(weightSource),
+          quoteDate: String(item.quoteDate || ""),
+          quoteTime: String(item.quoteTime || ""),
+          quoteStatus: item.quoteStatus || "ok"
+        };
+      }
+
+      function normalizePortfolio(payload) {
+        var source = Array.isArray(payload) ? { positions: payload } : (payload || {});
+        var meta = source.meta || {};
+        var rawPositions = source.positions || source.holdings || source.items || [];
+        var positions = rawPositions.map(normalizePosition);
+        var summary = source.summary || {};
+        var totalWeightBase = positions.reduce(function (sum, item) { return sum + toNumber(weightBase(item), 0); }, 0);
+        var summaryTotalCost = readField(summary, ["totalCost"]);
+        var summaryMarketValue = readField(summary, ["totalMarketValue", "marketValue", "value"]);
+        var summaryPnl = readField(summary, ["totalProfit", "pnl", "profit"]);
+        var summaryPnlRate = readField(summary, ["totalReturn", "pnlRate", "profitRate"]);
+        var summaryTodayPnl = readField(summary, ["todayProfit", "dayPnl", "dailyPnl"]);
+        var summaryPositionCount = readField(summary, ["positionCount"]);
+
+        positions = positions.map(function (item) {
+          if (item.weight === null && totalWeightBase) item.weight = toNumber(weightBase(item), 0) / totalWeightBase * 100;
+          return item;
+        });
+
+        return {
+          meta: meta,
+          updatedAt: meta.quoteDate && meta.quoteTime ? meta.quoteDate + " " + meta.quoteTime : (meta.fetchedAt || source.updatedAt || source.updateTime || source.date || ""),
+          summary: {
+            totalCost: toNumber(summaryTotalCost, null),
+            marketValue: toNumber(summaryMarketValue, null),
+            pnl: toNumber(summaryPnl, null),
+            pnlRate: asPercent(summaryPnlRate),
+            dayPnl: toNumber(summaryTodayPnl, null),
+            positionCount: toNumber(summaryPositionCount, summaryPositionCount === undefined ? positions.length : null)
+          },
+          positions: positions
+        };
+      }
+
+      function currentPositions() {
+        var positions = state.positions.slice();
+        positions = positions.filter(function (item) {
+          if (state.filter === "profit") return item.pnl !== null && item.pnl > 0;
+          if (state.filter === "loss") return item.pnl !== null && item.pnl < 0;
+          if (state.filter === "heavy") return item.weight >= 15;
+          return true;
+        });
+        positions.sort(function (a, b) {
+          if (state.sort === "code") return a.code.localeCompare(b.code);
+          return toNumber(b[state.sort], -Infinity) - toNumber(a[state.sort], -Infinity);
+        });
+        return positions;
+      }
+
+      function renderSummary(portfolio, isFallback) {
+        var summary = portfolio.summary;
+        var meta = portfolio.meta || {};
+        var missingCount = (meta.missingCodes || []).length;
+        els.quoteSource.textContent = meta.source ? String(meta.source).toUpperCase() : "行情源未返回";
+        els.updatedAt.textContent = portfolio.updatedAt ? portfolio.updatedAt : "接口未返回更新时间";
+        els.dataState.textContent = isFallback ? "演示数据" : (meta.isComplete === false ? "缺失 " + missingCount + " 项" : "行情完整");
+        els.dataState.classList.toggle("is-demo", isFallback);
+        els.dataState.classList.toggle("is-warning", !isFallback && meta.isComplete === false);
+        els.totalValue.textContent = formatMoney(summary.marketValue);
+        els.pnl.textContent = formatMoney(summary.pnl);
+        els.pnl.className = toneClass(summary.pnl);
+        els.pnlRate.textContent = formatPercent(summary.pnlRate);
+        els.dayPnl.textContent = formatMoney(summary.dayPnl);
+        els.dayPnl.className = toneClass(summary.dayPnl);
+        els.positionCount.textContent = formatNumber(summary.positionCount) + " 项";
+        els.totalCost.textContent = "成本 " + formatMoney(summary.totalCost);
+      }
+
+      function renderRows() {
+        var positions = currentPositions();
+        els.count.textContent = positions.length + " 项资产";
+        if (!positions.length) {
+          els.body.innerHTML = '<tr><td colspan="6">当前筛选没有匹配资产。</td></tr>';
+          return;
+        }
+        els.body.innerHTML = positions.map(function (item) {
+          return [
+            "<tr>",
+              "<td><strong>", escapeHtml(item.name), "</strong><span>", escapeHtml(item.code), "</span></td>",
+              "<td><strong class=\"quote-status ", quoteStatusClass(item.quoteStatus), "\">", formatQuoteStatus(item.quoteStatus), "</strong><span>", formatPercent(item.weight), "</span></td>",
+              "<td>", formatNumber(item.shares), "</td>",
+              "<td><strong>", formatMoney(item.costPrice, 2), "</strong><span>", formatMoney(item.lastPrice, 2), "</span></td>",
+              "<td>", formatMoney(item.marketValue), "</td>",
+              "<td><strong class=\"", toneClass(item.pnl), "\">", formatMoney(item.pnl), "</strong><span class=\"", toneClass(item.pnlRate), "\">", formatPercent(item.pnlRate), "</span></td>",
+            "</tr>"
+          ].join("");
+        }).join("");
+      }
+
+      function renderAllocation() {
+        var rows = state.positions.slice().sort(function (a, b) {
+          return toNumber(b.weight, 0) - toNumber(a.weight, 0);
+        });
+        els.allocation.innerHTML = rows.map(function (item) {
+          return [
+            "<article>",
+              "<div><strong>", escapeHtml(item.name), "</strong><span>", escapeHtml(item.code), "</span></div>",
+              "<div class=\"allocation-bar\"><i style=\"width:", Math.max(4, toNumber(item.weight, 0)).toFixed(2), "%\"></i></div>",
+              "<em>", formatPercent(item.weight), "</em>",
+            "</article>"
+          ].join("");
+        }).join("");
+      }
+
+      function renderRisk() {
+        var sortedByWeight = state.positions.slice().sort(function (a, b) { return b.weight - a.weight; });
+        var top3 = sortedByWeight.slice(0, 3).reduce(function (sum, item) { return sum + item.weight; }, 0);
+        var pnlPositions = state.positions.filter(function (item) { return item.pnl !== null; });
+        var worst = pnlPositions.slice().sort(function (a, b) { return a.pnl - b.pnl; })[0];
+        var best = pnlPositions.slice().sort(function (a, b) { return b.pnl - a.pnl; })[0];
+        var missingCodes = state.meta.missingCodes || [];
+        var list = [
+          { label: "前三大集中度", value: formatPercent(top3), note: sortedByWeight.slice(0, 3).map(function (item) { return item.name; }).join(" / ") },
+          { label: "行情完整度", value: state.meta.isComplete === false ? "缺失" : "完整", note: missingCodes.length ? missingCodes.join(" / ") : "全部资产已有行情", tone: state.meta.isComplete === false ? "is-loss" : "is-gain" },
+          { label: "最大浮亏", value: worst ? formatMoney(worst.pnl) : "--", note: worst ? worst.name + " · " + formatPercent(worst.pnlRate) : "--", tone: worst && worst.pnl < 0 ? "is-loss" : "is-neutral" },
+          { label: "最大贡献", value: best ? formatMoney(best.pnl) : "--", note: best ? best.name + " · " + formatPercent(best.pnlRate) : "--", tone: best && best.pnl > 0 ? "is-gain" : "is-neutral" }
+        ];
+        els.risk.innerHTML = list.map(function (item) {
+          return [
+            "<article>",
+              "<span>", escapeHtml(item.label), "</span>",
+              "<strong class=\"", item.tone || "", "\">", escapeHtml(item.value), "</strong>",
+              "<p>", escapeHtml(item.note), "</p>",
+            "</article>"
+          ].join("");
+        }).join("");
+      }
+
+      function render(portfolio, isFallback) {
+        state.meta = portfolio.meta || {};
+        state.positions = portfolio.positions;
+        renderSummary(portfolio, isFallback);
+        renderRows();
+        renderAllocation();
+        renderRisk();
+      }
+
+      function readStoredManualUnlockAt() {
+        try {
+          return toNumber(window.localStorage.getItem(refreshCooldownStorageKey), 0);
+        } catch (error) {
+          return 0;
+        }
+      }
+
+      function storeManualUnlockAt(value) {
+        try {
+          window.localStorage.setItem(refreshCooldownStorageKey, String(value));
+        } catch (error) {
+          return;
+        }
+      }
+
+      function manualRefreshWaitMs() {
+        manualRefreshUnlockedAt = Math.max(manualRefreshUnlockedAt, readStoredManualUnlockAt());
+        return Math.max(0, manualRefreshUnlockedAt - Date.now());
+      }
+
+      function startManualRefreshCooldown(ms) {
+        manualRefreshUnlockedAt = Date.now() + (ms || refreshCooldownMs);
+        storeManualUnlockAt(manualRefreshUnlockedAt);
+        syncRefreshButton();
+      }
+
+      function syncRefreshButton(label) {
+        var cooldownMs = manualRefreshWaitMs();
+        var isCooling = !isLoading && cooldownMs > 0;
+        els.refreshButton.disabled = isLoading || isCooling;
+        els.refreshButton.classList.toggle("is-cooling", isCooling);
+        if (label) {
+          els.refreshButtonLabel.textContent = label;
+        } else if (isLoading) {
+          els.refreshButtonLabel.textContent = "刷新中";
+        } else if (isCooling) {
+          els.refreshButtonLabel.textContent = formatManualRefreshWait(cooldownMs);
+        } else {
+          els.refreshButtonLabel.textContent = "刷新价格";
+        }
+      }
+
+      function setRefreshLoading(loading, label) {
+        isLoading = loading;
+        els.refreshButton.classList.toggle("is-loading", loading);
+        syncRefreshButton(label);
+      }
+
+      function updateRefreshStatus(text) {
+        if (text) {
+          els.refreshStatus.textContent = text;
+          return;
+        }
+        if (!nextRefreshAt) {
+          els.refreshStatus.textContent = "自动更新准备中";
+          return;
+        }
+        els.refreshStatus.textContent = formatRefreshWait(nextRefreshAt - Date.now());
+      }
+
+      function scheduleNextRefresh() {
+        if (refreshTimer) clearTimeout(refreshTimer);
+        nextRefreshAt = Date.now() + refreshIntervalMs;
+        updateRefreshStatus();
+        refreshTimer = setTimeout(function () {
+          if (document.hidden) {
+            scheduleNextRefresh();
+            return;
+          }
+          loadPortfolio({ reason: "auto" });
+        }, refreshIntervalMs);
+      }
+
+      function startRefreshCountdown() {
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = setInterval(function () {
+          syncRefreshButton();
+          if (!isLoading) updateRefreshStatus();
+        }, 1000);
+      }
+
+      function bindControls() {
+        [].forEach.call(document.querySelectorAll("[data-filter]"), function (button) {
+          button.addEventListener("click", function () {
+            state.filter = button.getAttribute("data-filter");
+            [].forEach.call(document.querySelectorAll("[data-filter]"), function (item) {
+              item.classList.toggle("is-selected", item === button);
+            });
+            renderRows();
+          });
+        });
+
+        function closeSortMenu() {
+          els.sortButton.setAttribute("aria-expanded", "false");
+          els.sortMenu.classList.remove("is-open");
+          els.sortOptions.hidden = true;
+        }
+
+        function openSortMenu() {
+          els.sortButton.setAttribute("aria-expanded", "true");
+          els.sortMenu.classList.add("is-open");
+          els.sortOptions.hidden = false;
+        }
+
+        els.sortButton.addEventListener("click", function () {
+          if (els.sortOptions.hidden) openSortMenu(); else closeSortMenu();
+        });
+
+        [].forEach.call(els.sortOptions.querySelectorAll("[data-sort]"), function (option) {
+          option.addEventListener("click", function () {
+            state.sort = option.getAttribute("data-sort");
+            els.sortCurrent.textContent = option.textContent;
+            [].forEach.call(els.sortOptions.querySelectorAll("[data-sort]"), function (item) {
+              var selected = item === option;
+              item.classList.toggle("is-selected", selected);
+              item.setAttribute("aria-selected", selected ? "true" : "false");
+            });
+            closeSortMenu();
+            renderRows();
+          });
+        });
+
+        document.addEventListener("click", function (event) {
+          if (!els.sortMenu.contains(event.target)) closeSortMenu();
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") closeSortMenu();
+        });
+
+        els.refreshButton.addEventListener("click", function () {
+          loadPortfolio({ reason: "manual" });
+        });
+
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) return;
+          if (!isLoading && nextRefreshAt && Date.now() >= nextRefreshAt) {
+            loadPortfolio({ reason: "auto" });
+            return;
+          }
+          syncRefreshButton();
+          updateRefreshStatus();
+        });
+      }
+
+      async function loadPortfolio(options) {
+        var reason = (options && options.reason) || "initial";
+        if (isLoading) return;
+        if (reason === "manual") {
+          var waitMs = manualRefreshWaitMs();
+          if (waitMs > 0) {
+            syncRefreshButton();
+            updateRefreshStatus("手动刷新冷却中 · " + formatManualRefreshWait(waitMs));
+            return;
+          }
+        }
+        var isRefresh = reason === "manual";
+        var requestUrl = isRefresh ? refreshApiUrl : apiUrl;
+        var method = isRefresh ? "POST" : "GET";
+        var loadingLabel = reason === "manual" ? "刷新中" : "读取中";
+        var loadingStatus = reason === "manual" ? "正在手动刷新价格" : (reason === "auto" ? "正在读取最新数据" : "正在读取财务数据");
+        if (reason === "manual") startManualRefreshCooldown();
+        setRefreshLoading(true, loadingLabel);
+        updateRefreshStatus(loadingStatus);
+        try {
+          var response = await fetch(requestUrl, {
+            method: method,
+            cache: "no-store",
+            headers: { Accept: "application/json" }
+          });
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          render(normalizePortfolio(await response.json()), false);
+          updateRefreshStatus((isRefresh ? "价格已更新" : "数据已同步") + " · " + formatClock(new Date()));
+        } catch (error) {
+          var hadData = state.positions.length > 0;
+          if (!hadData) render(normalizePortfolio(fallbackPortfolio), true);
+          updateRefreshStatus((hadData ? "更新失败，保留上次数据" : "使用演示数据") + " · " + formatClock(new Date()));
+        } finally {
+          setRefreshLoading(false);
+          scheduleNextRefresh();
+        }
+      }
+
+      bindControls();
+      startRefreshCountdown();
+      loadPortfolio({ reason: "initial" });
+    })();
+    </script>
+  </body>
+</html>

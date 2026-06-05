@@ -312,6 +312,7 @@
       <div class="footer-links">
         <a href="#about">About Us</a>
         <a href="#culture">Culture</a>
+        <a href="a-shares.html">财务状况</a>
         <a href="#milestones">Milestones</a>
         <a href="#careers">Join Us</a>
       </div>
@@ -325,7 +326,9 @@
 
       /* ---------- scroll progress + scroll-spy ---------- */
       var bar = document.querySelector(".scroll-progress");
-      var navLinks = [].slice.call(document.querySelectorAll(".nav-links a"));
+      var navLinks = [].slice.call(document.querySelectorAll(".nav-links a")).filter(function (a) {
+        return (a.getAttribute("href") || "").charAt(0) === "#";
+      });
       var sections = navLinks.map(function (a) { return document.querySelector(a.getAttribute("href")); });
       function onScroll() {
         var el = document.documentElement;
