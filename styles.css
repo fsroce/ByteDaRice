@@ -1021,12 +1021,18 @@ h2 {
 }
 
 .footer-links {
+  max-width: 420px;
   justify-content: flex-end;
-  gap: 8px 22px;
+  gap: 8px 18px;
 }
 
 .footer a {
   white-space: nowrap;
+}
+
+.footer-discreet-link {
+  color: rgba(105, 107, 118, 0.68);
+  font-size: 13px;
 }
 
 .footer a:hover {
@@ -1040,7 +1046,26 @@ h2 {
   }
 
   .footer-links {
+    gap: 8px;
+    max-width: 100%;
     justify-content: flex-start;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    padding: 0 10px;
+    border: 1px solid rgba(11, 11, 16, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .footer-links .footer-discreet-link {
+    border-style: dashed;
+    color: rgba(105, 107, 118, 0.56);
   }
 }
 
