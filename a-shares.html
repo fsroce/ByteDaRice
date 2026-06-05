@@ -34,7 +34,7 @@
       </nav>
     </header>
 
-    <main class="portfolio-shell" data-portfolio-app data-api-url="https://hold.fsrice.com/api/display/portfolio" data-refresh-api-url="https://hold.fsrice.com/api/display/portfolio/refresh" data-refresh-interval-ms="180000" data-refresh-cooldown-ms="60000">
+    <main class="portfolio-shell" data-portfolio-app data-api-url="https://hold.fsrice.com/api/display/portfolio" data-refresh-api-url="https://hold.fsrice.com/api/display/portfolio/refresh" data-refresh-interval-ms="180000" data-refresh-cooldown-ms="60000" data-request-timeout-ms="12000">
       <section class="portfolio-hero" aria-labelledby="portfolio-title">
         <div>
           <p class="eyebrow portfolio-kicker"><span></span> FINANCIAL SNAPSHOT</p>
@@ -167,7 +167,7 @@
 
       <section class="portfolio-note" aria-label="风险提示">
         <strong>公开展示，仅供了解。</strong>
-        <span>真实接口接入前展示演示数据；价格、盈亏和权重以接口返回为准。</span>
+        <span>接口不可用时展示演示数据；价格、盈亏、今日基准和权重以接口返回为准。</span>
       </section>
     </main>
 
@@ -181,6 +181,7 @@
       var refreshApiUrl = (window.PORTFOLIO_REFRESH_API || window.A_SHARE_HOLDINGS_REFRESH_API || app.getAttribute("data-refresh-api-url") || apiUrl.replace(/\/$/, "") + "/refresh").trim();
       var refreshIntervalMs = Math.max(15000, Number(app.getAttribute("data-refresh-interval-ms")) || 60000);
       var refreshCooldownMs = Math.max(15000, Number(app.getAttribute("data-refresh-cooldown-ms")) || 60000);
+      var requestTimeoutMs = Math.max(3000, Number(app.getAttribute("data-request-timeout-ms")) || 12000);
       var refreshCooldownStorageKey = "byterice:portfolio-refresh-unlock:" + refreshApiUrl;
       var refreshTimer = null;
       var countdownTimer = null;
@@ -221,6 +222,8 @@
             costValue: 146800,
             price: 1526.8,
             preClose: 1539.6,
+            todayBasePrice: 1539.6,
+            todayBaseSource: "quote",
             marketValue: 152680,
             todayProfit: -1280,
             totalProfit: 5880,
@@ -237,6 +240,8 @@
             costValue: 111720,
             price: 197.34,
             preClose: 198.3,
+            todayBasePrice: 198.3,
+            todayBaseSource: "quote",
             marketValue: 118404,
             todayProfit: -576,
             totalProfit: 6684,
@@ -253,6 +258,8 @@
             costValue: 84448,
             price: 34.12,
             preClose: 33.86,
+            todayBasePrice: 33.86,
+            todayBaseSource: "quote",
             marketValue: 88712,
             todayProfit: 676,
             totalProfit: 4264,
@@ -269,6 +276,8 @@
             costValue: 107688,
             price: 241.9,
             preClose: 244.2,
+            todayBasePrice: 244.2,
+            todayBaseSource: "quote",
             marketValue: 101598,
             todayProfit: -966,
             totalProfit: -6090,
@@ -285,6 +294,8 @@
             costValue: 71496,
             price: 22.16,
             preClose: 21.72,
+            todayBasePrice: 21.72,
+            todayBaseSource: "quote",
             marketValue: 79776,
             todayProfit: 1584,
             totalProfit: 8280,
@@ -301,6 +312,8 @@
             costValue: 73150,
             price: 138.72,
             preClose: 140.1,
+            todayBasePrice: 140.1,
+            todayBaseSource: "quote",
             marketValue: 69360,
             todayProfit: -690,
             totalProfit: -3790,
@@ -422,6 +435,10 @@
         return "行情正常";
       }
 
+      function formatBaseSource(source) {
+        return source === "manual" ? "手动基准" : "行情基准";
+      }
+
       function quoteStatusClass(status) {
         if (status === "missing") return "quote-missing";
         if (status === "stale") return "quote-stale";
@@ -438,6 +455,8 @@
         var costPrice = toNumber(readField(item, ["cost", "costPrice", "avgCost"]), null);
         var lastPrice = toNumber(readField(item, ["price", "lastPrice", "currentPrice"]), null);
         var preClose = toNumber(readField(item, ["preClose"]), null);
+        var todayBasePrice = toNumber(readField(item, ["todayBasePrice"]), null);
+        var todayBaseSource = readField(item, ["todayBaseSource"]);
         var costValue = toNumber(readField(item, ["costValue"]), null);
         var marketValue = toNumber(readField(item, ["marketValue", "value"]), null);
         var pnl = toNumber(readField(item, ["totalProfit", "pnl", "profit"]), null);
@@ -454,6 +473,8 @@
           costPrice: costPrice,
           lastPrice: lastPrice,
           preClose: preClose,
+          todayBasePrice: todayBasePrice,
+          todayBaseSource: todayBaseSource === "manual" ? "manual" : "quote",
           costValue: costValue,
           marketValue: marketValue,
           pnl: pnl,
@@ -542,12 +563,13 @@
           return;
         }
         els.body.innerHTML = positions.map(function (item) {
+          var basePriceClass = item.todayBaseSource === "manual" ? "base-price is-manual" : "base-price";
           return [
             "<tr>",
               "<td><strong>", escapeHtml(item.name), "</strong><span>", escapeHtml(item.code), "</span></td>",
               "<td><strong class=\"quote-status ", quoteStatusClass(item.quoteStatus), "\">", formatQuoteStatus(item.quoteStatus), "</strong><span>", formatPercent(item.weight), "</span></td>",
               "<td>", formatNumber(item.shares), "</td>",
-              "<td><strong>", formatMoney(item.costPrice, 2), "</strong><span>", formatMoney(item.lastPrice, 2), "</span></td>",
+              "<td><strong>成本 ", formatMoney(item.costPrice, 2), "</strong><span>现价 ", formatMoney(item.lastPrice, 2), "</span><span class=\"", basePriceClass, "\">基准 ", formatMoney(item.todayBasePrice, 2), " · ", formatBaseSource(item.todayBaseSource), "</span></td>",
               "<td>", formatMoney(item.marketValue), "</td>",
               "<td><strong class=\"", toneClass(item.pnl), "\">", formatMoney(item.pnl), "</strong><span class=\"", toneClass(item.pnlRate), "\">", formatPercent(item.pnlRate), "</span></td>",
             "</tr>"
@@ -685,6 +707,19 @@
         }, 1000);
       }
 
+      function fetchWithTimeout(url, options) {
+        var controller = window.AbortController ? new AbortController() : null;
+        var timeoutId = controller ? window.setTimeout(function () {
+          controller.abort();
+        }, requestTimeoutMs) : null;
+        var requestOptions = options || {};
+        if (controller) requestOptions.signal = controller.signal;
+
+        return fetch(url, requestOptions).finally(function () {
+          if (timeoutId) window.clearTimeout(timeoutId);
+        });
+      }
+
       function bindControls() {
         [].forEach.call(document.querySelectorAll("[data-filter]"), function (button) {
           button.addEventListener("click", function () {
@@ -769,7 +804,7 @@
         setRefreshLoading(true, loadingLabel);
         updateRefreshStatus(loadingStatus);
         try {
-          var response = await fetch(requestUrl, {
+          var response = await fetchWithTimeout(requestUrl, {
             method: method,
             cache: "no-store",
             headers: { Accept: "application/json" }

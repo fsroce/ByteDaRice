@@ -1921,6 +1921,14 @@ h2 {
   font-weight: 850;
 }
 
+.holdings-table td .base-price {
+  color: rgba(11, 11, 16, 0.52);
+}
+
+.holdings-table td .base-price.is-manual {
+  color: var(--red);
+}
+
 .quote-status {
   display: inline-flex !important;
   width: fit-content;
